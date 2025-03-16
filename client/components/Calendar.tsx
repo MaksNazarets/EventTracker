@@ -1,20 +1,18 @@
 "use client";
 
+import { useEvent } from "@/app/context/EventContext";
 import dayjs from "dayjs";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Day from "./calendar/Day";
-import { EventType } from "@/types";
-import React from "react";
-import { useEvent } from "@/app/context/EventContext";
+import API from "@/app/utils/api";
 
 const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const Calendar = React.memo(() => {
-  const { events } = useEvent();
-
   const [currentDate, setCurrentDate] = useState(dayjs());
   const { setSelectedDate } = useEvent();
+  const [eventsPerDay, setEventsPerDay] = useState([]);
 
   const startOfMonth = currentDate.startOf("month").day();
   const endOfMonth = currentDate.endOf("month");
@@ -25,13 +23,28 @@ const Calendar = React.memo(() => {
 
   const today = dayjs();
 
+  useEffect(() => {
+    API.get(
+      `/events/events-per-day?year=${currentDate.year()}&month=${currentDate.month()}`
+    )
+      .then((res: any) => {
+        console.log(res.data.eventsPerDay);
+        setEventsPerDay(res.data.eventsPerDay);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+
+    return () => setEventsPerDay([]);
+  }, [currentDate]);
+
   const isToday = (day: number) =>
     currentDate.year() === today.year() &&
     currentDate.month() === today.month() &&
     today.date() === day;
 
   return (
-    <div className="flex-1 flex flex-col p-4 rounded-lg w-full h-full">
+    <div className="flex-1 flex flex-col rounded-lg w-full h-full">
       <div className="flex justify-between self-center gap-3 items-center mb-2 w-72">
         <button
           className="py-1 pl-[0.1rem] pr-1 rounded-full hover:bg-gray-700 active:bg-gray-500 transition"
@@ -67,6 +80,7 @@ const Calendar = React.memo(() => {
             key={i + 1}
             day={i + 1}
             today={isToday(i + 1)}
+            eventsNumber={eventsPerDay[i] || 0}
             onClick={() => setSelectedDate(currentDate.date(i + 1))}
           />
         ))}

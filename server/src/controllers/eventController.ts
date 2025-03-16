@@ -12,11 +12,31 @@ export const getEvents = async (req: Request, res: Response) => {
   try {
     const dateStr = req.query.date as string;
 
+    const month = parseInt(req.query.month as string, 10);
+    const year = parseInt(req.query.year as string, 10);
+    if ((month && isNaN(month)) || (year && isNaN(year))) {
+      res.status(400).json("year or month is not a number");
+      return;
+    }
+
     let events = [];
 
     if (!dayjs(dateStr).isValid()) {
       events = await eventRepo.find({
         where: { user: { id: (req as any).user.userId } },
+        order: { dateTime: "ASC" },
+      });
+    } else if (year && month) {
+      const date = dayjs().year(year).month(month);
+
+      const startOfMonth = date.startOf("month").toDate();
+      const endOfMonth = date.endOf("month").toDate();
+
+      events = await eventRepo.find({
+        where: {
+          user: { id: (req as any).user.userId },
+          dateTime: Between(startOfMonth, endOfMonth),
+        },
         order: { dateTime: "ASC" },
       });
     } else {
@@ -34,9 +54,51 @@ export const getEvents = async (req: Request, res: Response) => {
       });
     }
 
-    const responseEventList = events.map((e) => ({ ...e, importance: e.importance.id }));
+    const responseEventList = events.map((e) => ({
+      ...e,
+      importance: e.importance.id,
+    }));
 
     res.json({ events: responseEventList });
+  } catch (err) {
+    res.status(500).json("Unexpected error occured :(");
+  }
+};
+
+export const getEventsPerDay = async (req: Request, res: Response) => {
+  const eventRepo = AppDataSource.getRepository(Event);
+
+  try {
+    const month = parseInt(req.query.month as string, 10);
+    const year = parseInt(req.query.year as string, 10);
+    if (isNaN(month) || isNaN(year)) {
+      res.status(400).json("year or month is not a number");
+      return;
+    }
+
+    const date = dayjs().year(year).month(month);
+
+    const startOfMonth = date.startOf("month").toDate();
+    const endOfMonth = date.endOf("month").toDate();
+
+    const events = await eventRepo.find({
+      select: { id: true, dateTime: true },
+      where: {
+        user: { id: (req as any).user.userId },
+        dateTime: Between(startOfMonth, endOfMonth),
+      },
+      order: { dateTime: "ASC" },
+    });
+
+    const daysInMonth = date.daysInMonth();
+    const eventsPerDay = Array(daysInMonth).fill(0);
+
+    events.forEach((event) => {
+      const day = new Date(event.dateTime).getDate();
+      eventsPerDay[day - 1]++;
+    });
+
+    res.json({ eventsPerDay });
   } catch (err) {
     res.status(500).json("Unexpected error occured :(");
   }

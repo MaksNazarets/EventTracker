@@ -6,7 +6,7 @@ import { X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import CreateEventDialog from "../CreateEventDialog";
 import API from "@/app/utils/api";
-import Event from "../Event";
+import DayEvent from "../DayEvent";
 import EventViewer from "../EventViewer";
 
 interface Props {
@@ -65,7 +65,7 @@ function DayEventsInfo({ date, onClose }: Props) {
         />
 
         <h3 className="text-3xl text-center mx-2 mt-4 mb-8">
-          {date?.format("MMMM DD, YYYY")}
+          {date?.format("MMMM D, YYYY")}
         </h3>
         <div className="flex-1 flex flex-col">
           <div className="flex justify-between gap-3">
@@ -94,7 +94,7 @@ function DayEventsInfo({ date, onClose }: Props) {
           <div className="flex-1 max-h-full overflow-auto mt-3">
             <ul className="ul">
               {filteredEvents.map((e) => (
-                <Event key={e.id} event={e} onClick={() => setEventToView(e)} />
+                <DayEvent key={e.id} event={e} onClick={() => setEventToView(e)} />
               ))}
             </ul>
             {!filteredEvents.length && (

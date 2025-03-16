@@ -1,7 +1,6 @@
 "use client";
 
 import DayEventsInfo from "@/components/calendar/DayEventsInfo";
-import EventViewer from "@/components/EventViewer";
 import { EventType, Importance } from "@/types";
 import dayjs from "dayjs";
 import {
@@ -9,7 +8,6 @@ import {
   Dispatch,
   SetStateAction,
   useContext,
-  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -17,9 +15,6 @@ import API from "../utils/api";
 import { parseTime } from "../utils/time";
 
 interface EventContextType {
-  events: EventType[];
-  filter: "all" | Importance;
-  setFilter: Dispatch<SetStateAction<Importance | "all">>;
   setSelectedDate: Dispatch<SetStateAction<dayjs.Dayjs | null>>;
   createEvent: (e: {
     title: string;
@@ -34,20 +29,7 @@ interface EventContextType {
 const EventContext = createContext<EventContextType | null>(null);
 
 export function EventProvider({ children }: { children: React.ReactNode }) {
-  const [events, setEvents] = useState<EventType[]>([]);
-  const [filter, setFilter] = useState<"all" | Importance>("all");
   const [selectedDate, setSelectedDate] = useState<dayjs.Dayjs | null>(null);
-
-  useEffect(() => {
-    API.get("/events/get")
-      .then((res: any) => {
-        console.log(res.data.events);
-        setEvents(res.data.events);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }, []);
 
   const createEvent = async ({
     title,
@@ -96,13 +78,6 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
         datetime,
       });
 
-      setEvents((prev) =>
-        prev.map((e) => {
-          if (e.id === id) return event;
-          return e;
-        })
-      );
-
       console.log("Event updated successfullly");
       return true;
     } catch (err: any) {
@@ -118,7 +93,6 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
       await API.get(`/events/delete?id=${id}`);
 
       console.log("Event deleted successfullly");
-      setEvents((val) => val.filter((t) => t.id !== id));
       return true;
     } catch (err: any) {
       alert("Unexpected server error :(");
@@ -129,15 +103,12 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo(
     () => ({
-      events,
       deleteEvent,
       createEvent,
       updateEvent,
-      filter,
-      setFilter,
       setSelectedDate,
     }),
-    [events, filter, selectedDate]
+    [selectedDate]
   );
 
   return (

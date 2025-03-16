@@ -28,7 +28,7 @@ export default function RootLayout({
   return (
     <html>
       <body
-        className={`flex justify-center min-w-screen min-h-screen ${alegreyaSans.variable} ${alegreyaSansSC.variable} bg-mblue-900 antialiased h-screen`}
+        className={`flex justify-center min-w-screen min-h-screen ${alegreyaSans.variable} ${alegreyaSansSC.variable} bg-mblue-900 antialiased h-screen p-4`}
       >
         <AuthProvider>{children}</AuthProvider>
       </body>
