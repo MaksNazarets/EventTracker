@@ -1,3 +1,5 @@
+"use client";
+
 import { EventProvider } from "../context/EventContext";
 
 export default function RootLayout({
@@ -5,5 +7,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  
   return <EventProvider>{children}</EventProvider>;
 }

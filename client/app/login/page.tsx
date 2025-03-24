@@ -2,28 +2,33 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import API from "../utils/api";
+import API from "../../utils/api";
 import Link from "next/link";
-import { useAuth } from "../context/AuthContext";
+import { useAppDispatch, useAppSelector } from "@/lib/store";
+import { stat } from "fs";
+import { loginUser } from "@/lib/slices/userSlice";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>("");
 
-  const { user, login } = useAuth();
+  const user = useAppSelector((state) => state.user);
+  const dispatch = useAppDispatch();
   const router = useRouter();
 
   useEffect(() => {
-    if (user) router.push("/");
-  }, []);
+    if (user.id > 0) router.replace("/calendar");
+  }, [user]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await login(email, password);
+      const res = await dispatch(loginUser({ email, password }));
+
+      const err = res.payload.error;
+      if (err) setError(err);
     } catch (err: any) {
-      setError(err.message || "Unexpected error occured");
       console.error(err);
     }
   };

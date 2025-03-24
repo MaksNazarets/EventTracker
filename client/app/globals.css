@@ -30,7 +30,7 @@ body {
 }
 
 .custom-input-borderless {
-  @apply text-[1.4rem] px-3 py-2 border-gray-600 rounded-md focus:border-gray-300 focus:outline-none;
+  @apply text-[1.4rem] px-3 py-2 border rounded-md border-gray-700;
 }
 
 @keyframes bubbleFadeIn {
@@ -46,6 +46,16 @@ body {
 
 .bubble-fade-in {
   animation: bubbleFadeIn 0.1s ease-in-out;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.fast-spinning {
+  animation: spin 0.75s linear infinite;
 }
 
 dialog[open]::backdrop {

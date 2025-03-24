@@ -1,6 +1,6 @@
 "use client";
 
-import API from "@/app/utils/api";
+import API from "@/utils/api";
 import { EventType } from "@/types";
 import dayjs from "dayjs";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -14,16 +14,11 @@ const Calendar = React.memo(() => {
   const prevMonth = () => setCurrentDate(currentDate.subtract(1, "month"));
   const nextMonth = () => setCurrentDate(currentDate.add(1, "month"));
 
-  const today = dayjs();
-
   useEffect(() => {
     API.get(
       `/events/get?year=${currentDate.year()}&month=${currentDate.month()}`
     )
-      .then((res: any) => {
-        console.log(res.data.events);
-        setMonthEvents(res.data.events);
-      })
+      .then((res: any) => setMonthEvents(res.data.events))
       .catch((err) => {
         console.error(err);
       });

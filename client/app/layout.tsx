@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Alegreya_Sans, Alegreya_Sans_SC } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "./context/AuthContext";
-import { EventProvider } from "./context/EventContext";
+import Providers from "./providers";
 
 const alegreyaSans = Alegreya_Sans({
   variable: "--font-alegreya-sans",
@@ -30,7 +29,7 @@ export default function RootLayout({
       <body
         className={`flex justify-center min-w-screen min-h-screen ${alegreyaSans.variable} ${alegreyaSansSC.variable} bg-mblue-900 antialiased h-screen p-4`}
       >
-        <AuthProvider>{children}</AuthProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

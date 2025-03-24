@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import { X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import CreateEventDialog from "../CreateEventDialog";
-import API from "@/app/utils/api";
+import API from "@/utils/api";
 import DayEvent from "../DayEvent";
 import EventViewer from "../EventViewer";
 

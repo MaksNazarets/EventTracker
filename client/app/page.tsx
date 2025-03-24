@@ -1,5 +1,11 @@
-import { redirect } from "next/navigation";
+"use client";
+
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  redirect("/calendar");
+  const router = useRouter();
+
+  router.replace("/calendar");
+
+  return null;
 }

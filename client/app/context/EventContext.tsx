@@ -11,8 +11,8 @@ import {
   useMemo,
   useState,
 } from "react";
-import API from "../utils/api";
-import { parseTime } from "../utils/time";
+import API from "../../utils/api";
+import { parseTime } from "../../utils/time";
 
 interface EventContextType {
   setSelectedDate: Dispatch<SetStateAction<dayjs.Dayjs | null>>;
@@ -125,7 +125,7 @@ export function EventProvider({ children }: { children: React.ReactNode }) {
 export const useEvent = () => {
   const context = useContext(EventContext);
   if (!context) {
-    throw new Error("useAuthContext must be used within a AuthProvider");
+    throw new Error("useEventContext must be used within an EventProvider");
   }
   return context;
 };

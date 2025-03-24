@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "../context/AuthContext";
 import Calendar from "@/components/Calendar";
 import MonthEventList from "@/components/MonthEventList";
+import { useAppDispatch, useAppSelector } from "@/lib/store";
+import { stat } from "fs";
+import { logoutUser } from "@/lib/slices/userSlice";
 
 export default function CalendarPage() {
-  const { user, logout } = useAuth();
+  const user = useAppSelector((state) => state.user);
+  const dispatch = useAppDispatch();
   const [mode, setMode] = useState<"calendar" | "list">("calendar");
 
   return (
@@ -37,7 +40,7 @@ export default function CalendarPage() {
 
         <button
           className="text-2xl border rounded-md px-3 py-1 hover:brightness-75 active:brightness-90"
-          onClick={() => logout()}
+          onClick={() => dispatch(logoutUser())}
         >
           Log out
         </button>

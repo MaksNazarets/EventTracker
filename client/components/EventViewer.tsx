@@ -1,7 +1,7 @@
 "use client";
 
 import { useEvent } from "@/app/context/EventContext";
-import { parseTime } from "@/app/utils/time";
+import { parseTime } from "@/utils/time";
 import { EventType, Importance } from "@/types";
 import dayjs from "dayjs";
 import { useEffect, useRef, useState } from "react";
@@ -18,7 +18,7 @@ function EventViewer({ event, isOpen, onClose, onUpdate, onDelete }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [title, setTitle] = useState(event.title);
   const [description, setDescription] = useState(event.description);
-  const [importance, setImportance] = useState<Importance>(1);
+  const [importance, setImportance] = useState<Importance>(event.importance);
   const [editMode, setEditMode] = useState(false);
 
   const dayObj = dayjs(event.dateTime);
@@ -34,6 +34,15 @@ function EventViewer({ event, isOpen, onClose, onUpdate, onDelete }: Props) {
     if (isOpen) dialogRef.current?.showModal();
     else dialogRef.current?.close();
   }, [isOpen]);
+
+  useEffect(() => {
+    if (editMode) return;
+
+    setTitle(event.title);
+    setDescription(event.description);
+    setTime(dayObj.format("HH:mm"));
+    setImportance(event.importance);
+  }, [editMode]);
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,29 +90,38 @@ function EventViewer({ event, isOpen, onClose, onUpdate, onDelete }: Props) {
         <span className="text-center text-3xl">
           {editMode ? "Update event" : "Event"}
         </span>
-        <input
-          type="text"
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="custom-input"
-          required
-          disabled={!editMode}
-        />
-        <textarea
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="custom-input flex-1"
-          required
-          disabled={!editMode}
-        ></textarea>
+        {editMode ? (
+          <input
+            type="text"
+            placeholder="Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="custom-input"
+            required
+          />
+        ) : (
+          <div className="custom-input-borderless font-bold">{title}</div>
+        )}
+
+        {editMode ? (
+          <textarea
+            placeholder="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="custom-input flex-1"
+            required
+            disabled={!editMode}
+          ></textarea>
+        ) : (
+          <div className="custom-input-borderless flex-1">{description}</div>
+        )}
+
         <div className="flex gap-2">
           <input
             type="time"
             value={time}
             onChange={(e) => setTime(e.target.value)}
-            className="custom-input min-w-24"
+            className={`custom-input${editMode?'':'-borderless'}`}
             disabled={!editMode}
           />
           {editMode ? (
@@ -119,8 +137,8 @@ function EventViewer({ event, isOpen, onClose, onUpdate, onDelete }: Props) {
               <option value="3">critical</option>
             </select>
           ) : (
-            <div className="custom-input">
-              {["ordinary", "important", "critical"][importance]}
+            <div className="custom-input-borderless">
+              {["ordinary", "important", "critical"][importance - 1]}
             </div>
           )}
         </div>
@@ -146,17 +164,17 @@ function EventViewer({ event, isOpen, onClose, onUpdate, onDelete }: Props) {
             </button>
           </div>
         ) : (
-          <div className="w-1/2 self-end flex gap-1">
+          <div className="w-1/2 self-end flex gap-1 use-select-none">
             <button
               type="submit"
-              className="flex-1 mt-3 text-[1.4rem] border border-gray-500 p-2 rounded-md hover:bg-gray-700 active:bg-gray-700 transition disabled:brightness-75"
+              className="flex-1 mt-3 text-[1.4rem] border border-gray-500 p-2 rounded-md hover:bg-gray-700 active:bg-gray-800 transition disabled:brightness-75"
               onClick={(e) => setEditMode(true)}
             >
               Update
             </button>
             <button
               type="submit"
-              className="flex-1 mt-3 text-[1.4rem] bg-red-900/50 p-2 rounded-md hover:bg-red-800/50 active:bg-gray-700 transition disabled:brightness-75"
+              className="flex-1 mt-3 text-[1.4rem] bg-red-900/50 p-2 rounded-md border border-red-900/75 hover:bg-red-800/50 hover:border-red-500 active:bg-red-900/75 transition disabled:brightness-75"
               onClick={() => handleDelete()}
             >
               Delete

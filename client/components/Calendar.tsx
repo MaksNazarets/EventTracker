@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import Day from "./calendar/Day";
-import API from "@/app/utils/api";
+import API from "@/utils/api";
 
 const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -27,10 +27,7 @@ const Calendar = React.memo(() => {
     API.get(
       `/events/events-per-day?year=${currentDate.year()}&month=${currentDate.month()}`
     )
-      .then((res: any) => {
-        console.log(res.data.eventsPerDay);
-        setEventsPerDay(res.data.eventsPerDay);
-      })
+      .then((res: any) => setEventsPerDay(res.data.eventsPerDay))
       .catch((err) => {
         console.error(err);
       });
