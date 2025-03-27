@@ -1,4 +1,4 @@
-# TODO Manager
+# Event Tracker
 
 ### How to run
 1. run `npm install` in terminal inside both client and server folders.
