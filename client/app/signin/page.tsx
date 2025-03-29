@@ -1,10 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import API from "../../utils/api";
-import Link from "next/link";
-import { useAuth } from "../context/AuthContext";
+import { useAppDispatch, useAppSelector } from "@/lib/store";
+import { loginUser } from "@/lib/slices/userSlice";
 
 export default function SignInPage() {
   const [name, setName] = useState("");
@@ -12,13 +13,14 @@ export default function SignInPage() {
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
   const [error, setError] = useState<string | null>("");
-  const { user, login } = useAuth();
 
+  const user = useAppSelector((state) => state.user);
+  const dispatch = useAppDispatch();
   const router = useRouter();
 
   useEffect(() => {
-    if (user) router.push("/");
-  }, []);
+    if (user.id > 0) router.replace("/calendar");
+  }, [user]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +35,11 @@ export default function SignInPage() {
       }
 
       console.log("Registration successful");
-      router.push("/login");
+
+      const loginRes = await dispatch(loginUser({ email, password }));
+
+      const err = loginRes.payload.error;
+      if (err) router.push("/login");
     } catch (err: any) {
       if (err.response?.data?.error) {
         setError(err.response?.data?.error);
@@ -54,6 +60,7 @@ export default function SignInPage() {
           onChange={(e) => setName(e.target.value)}
           className="custom-input"
           required
+          autoComplete="name"
         />
         <input
           type="email"
@@ -62,6 +69,7 @@ export default function SignInPage() {
           onChange={(e) => setEmail(e.target.value)}
           className="custom-input"
           required
+          autoComplete="email"
         />
         <input
           type="password"
@@ -70,6 +78,7 @@ export default function SignInPage() {
           onChange={(e) => setPassword(e.target.value)}
           className="custom-input"
           required
+          autoComplete="new-password"
         />{" "}
         <input
           type="password"
@@ -77,6 +86,7 @@ export default function SignInPage() {
           onChange={(e) => setRepeatPassword(e.target.value)}
           className="custom-input"
           required
+          autoComplete="new-password"
         />
         {error && (
           <span className="text-red-400 text-xl text-center">{error}</span>
