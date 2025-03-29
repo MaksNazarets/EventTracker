@@ -1,8 +1,10 @@
 "use client";
 
-import { useEvent } from "@/app/context/EventContext";
-import { parseTime } from "@/utils/time";
+import { decrementDayEventsNumber } from "@/lib/slices/eventsSlice";
+import { useAppDispatch } from "@/lib/store";
 import { EventType, Importance } from "@/types";
+import API from "@/utils/api";
+import { parseTime } from "@/utils/time";
 import dayjs from "dayjs";
 import { useEffect, useRef, useState } from "react";
 
@@ -24,7 +26,7 @@ function EventViewer({ event, isOpen, onClose, onUpdate, onDelete }: Props) {
   const dayObj = dayjs(event.dateTime);
   const [time, setTime] = useState(dayObj.format("HH:mm"));
 
-  const { updateEvent, deleteEvent } = useEvent();
+  const dispatch = useAppDispatch();
 
   const handleBackdropClick = (event: React.MouseEvent<HTMLDialogElement>) => {
     if (event.target === dialogRef.current) onClose();
@@ -60,20 +62,30 @@ function EventViewer({ event, isOpen, onClose, onUpdate, onDelete }: Props) {
         .toISOString(),
     };
 
-    const success = await updateEvent(updatedEvent);
+    try {
+      await API.post("/events/update", updatedEvent);
 
-    if (!success) return;
-    onUpdate(updatedEvent);
-    onClose();
+      console.log("Event updated successfullly");
+
+      onUpdate(updatedEvent);
+      onClose();
+    } catch (err: any) {
+      console.error(err);
+    }
   };
 
   const handleDelete = async () => {
-    const success = await deleteEvent(event.id!);
+    try {
+      await API.get(`/events/delete?id=${event.id}`);
 
-    if (!success) return;
+      dispatch(decrementDayEventsNumber(dayObj.date() - 1));
 
-    onClose();
-    onDelete();
+      console.log("Event deleted successfullly");
+      onClose();
+      onDelete();
+    } catch (err: any) {
+      console.error(err);
+    }
   };
 
   return (
@@ -121,7 +133,7 @@ function EventViewer({ event, isOpen, onClose, onUpdate, onDelete }: Props) {
             type="time"
             value={time}
             onChange={(e) => setTime(e.target.value)}
-            className={`custom-input${editMode?'':'-borderless'}`}
+            className={`custom-input${editMode ? "" : "-borderless"}`}
             disabled={!editMode}
           />
           {editMode ? (

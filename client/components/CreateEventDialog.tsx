@@ -1,7 +1,11 @@
 "use client";
 
-import { useEvent } from "@/app/context/EventContext";
+import { incrementDayEventsNumber } from "@/lib/slices/eventsSlice";
+import { useAppDispatch, useAppSelector } from "@/lib/store";
 import { EventType, Importance } from "@/types";
+import API from "@/utils/api";
+import { parseTime } from "@/utils/time";
+import dayjs from "dayjs";
 import { useEffect, useRef, useState } from "react";
 
 interface Props {
@@ -10,17 +14,22 @@ interface Props {
   onSuccess: (event: EventType) => void;
 }
 
-function CreateEventDialog({ isOpen, onSuccess, onClose: closeFn }: Props) {
+function CreateEventDialog({ isOpen, onSuccess, onClose }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [importance, setImportance] = useState<Importance>(1);
   const [time, setTime] = useState("00:00");
 
-  const { createEvent } = useEvent();
+  const selectedDate = useAppSelector((state) =>
+    state.events.selectedDateISOString
+      ? dayjs(state.events.selectedDateISOString)
+      : null
+  );
+  const dispatch = useAppDispatch();
 
   const close = () => {
-    closeFn();
+    onClose();
     setTitle("");
     setDescription("");
     setImportance(1);
@@ -35,6 +44,42 @@ function CreateEventDialog({ isOpen, onSuccess, onClose: closeFn }: Props) {
     if (isOpen) dialogRef.current?.showModal();
     else dialogRef.current?.close();
   }, [isOpen]);
+
+  const createEvent = async ({
+    title,
+    description,
+    importance,
+    time,
+  }: {
+    title: string;
+    description: string;
+    importance: Importance;
+    time: string;
+  }) => {
+    try {
+      const parsedTime = parseTime(time);
+
+      const res = await API.post("/events/new", {
+        title,
+        description,
+        importance,
+        datetime: selectedDate
+          ?.hour(parsedTime.hour)
+          .minute(parsedTime.minute)
+          .toISOString(),
+      });
+
+      console.log("Event created successfullly");
+
+      dispatch(incrementDayEventsNumber((selectedDate?.date() || 0) - 1));
+      return res.data.newEvent;
+    } catch (err: any) {
+      alert("Unexpected error :(");
+      console.error(err);
+
+      return null;
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

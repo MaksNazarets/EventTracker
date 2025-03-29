@@ -3,11 +3,12 @@
 import { EventType, Importance } from "@/types";
 import dayjs from "dayjs";
 import { X } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import CreateEventDialog from "../CreateEventDialog";
 import API from "@/utils/api";
 import DayEvent from "../DayEvent";
 import EventViewer from "../EventViewer";
+import LoadingSpinner from "../LoadingSpinner";
 
 interface Props {
   date: dayjs.Dayjs | null;
@@ -17,11 +18,10 @@ interface Props {
 function DayEventsInfo({ date, onClose }: Props) {
   const [filter, setFilter] = useState<"all" | Importance>("all");
   const [isAddEventDialogOpen, setIsAddEventDialogOpen] = useState(false);
-  const [eventToView, setEventToView] = useState<EventType | null>(null);
-
+  const [isDataFetching, setIsDataFetching] = useState(false);
   const [dayEvents, setDayEvents] = useState<EventType[]>([]);
-
   const [filteredEvents, setFilteredEvents] = useState<EventType[]>([]);
+  const [eventToView, setEventToView] = useState<EventType | null>(null);
 
   useEffect(() => {
     if (filter === "all") setFilteredEvents(dayEvents);
@@ -29,19 +29,22 @@ function DayEventsInfo({ date, onClose }: Props) {
   }, [filter, dayEvents]);
 
   useEffect(() => {
-    if (date === null) return;
+    if (!date) return;
 
+    setIsDataFetching(true);
     API.get(`/events/get?date=${date}`, {
       headers: {
         "Cache-Control": "no-cache",
       },
     })
       .then((res: any) => {
-        console.log(res.data.events);
         setDayEvents(res.data.events);
       })
       .catch((err) => {
         console.error(err);
+      })
+      .finally(() => {
+        setIsDataFetching(false);
       });
   }, [date]);
 
@@ -49,6 +52,23 @@ function DayEventsInfo({ date, onClose }: Props) {
     onClose();
     setDayEvents([]);
   };
+
+  const handleCreateEvent = useCallback((event: EventType) => {
+    setDayEvents((prev) =>
+      [...prev, event].toSorted(
+        (a, b) =>
+          new Date(a.dateTime!).getTime() - new Date(b.dateTime!).getTime()
+      )
+    );
+  }, []);
+
+  const filtered = useMemo(
+    () =>
+      filteredEvents.map((e) => (
+        <DayEvent key={e.id} event={e} onClick={() => setEventToView(e)} />
+      )),
+    [filteredEvents]
+  );
 
   return (
     <>
@@ -67,7 +87,7 @@ function DayEventsInfo({ date, onClose }: Props) {
         <h3 className="text-3xl text-center mx-2 mt-4 mb-8">
           {date?.format("MMMM D, YYYY")}
         </h3>
-        <div className="flex-1 flex flex-col">
+        <div className="h-[300px] flex-1 flex flex-col pb-2">
           <div className="flex justify-between gap-3">
             <button
               className="text-2xl px-3 py-1 border border-gray-300 rounded-md hover:border-white hover:bg-gray-800 active:brightness-90"
@@ -90,18 +110,19 @@ function DayEventsInfo({ date, onClose }: Props) {
               <option value={3}>critical</option>
             </select>
           </div>
-          <h2 className="text-2xl text-center font-bold mb-1 mt-8">Events</h2>
-          <div className="flex-1 max-h-full overflow-auto mt-3">
-            <ul className="ul">
-              {filteredEvents.map((e) => (
-                <DayEvent key={e.id} event={e} onClick={() => setEventToView(e)} />
-              ))}
-            </ul>
-            {!filteredEvents.length && (
+          <h2 className="text-2xl text-center font-bold mb-1 mt-3">Events</h2>
+          <div className="flex-1 max-h-full overflow-auto mt-3 pr-1">
+            <ul className="ul">{filtered}</ul>
+            {!filteredEvents.length && !isDataFetching && (
               <div className="text-xl text-center text-gray-500 my-10">
                 No events for this day...
               </div>
             )}
+            {isDataFetching && (
+              <div className="flex justify-center my-10">
+                <LoadingSpinner />
+              </div>
+            )}{" "}
           </div>
         </div>
       </div>
@@ -114,15 +135,7 @@ function DayEventsInfo({ date, onClose }: Props) {
       <CreateEventDialog
         isOpen={isAddEventDialogOpen}
         onClose={() => setIsAddEventDialogOpen(false)}
-        onSuccess={(event) =>
-          setDayEvents((prev) =>
-            [...prev, event].toSorted(
-              (a, b) =>
-                new Date(a.dateTime!).getTime() -
-                new Date(b.dateTime!).getTime()
-            )
-          )
-        }
+        onSuccess={handleCreateEvent}
       />
       {eventToView && (
         <EventViewer

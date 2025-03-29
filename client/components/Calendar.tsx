@@ -1,18 +1,20 @@
 "use client";
 
-import { useEvent } from "@/app/context/EventContext";
+import {
+  setMonthDayEventsNumber,
+  setSelectedDate,
+} from "@/lib/slices/eventsSlice";
+import { useAppDispatch, useAppSelector } from "@/lib/store";
+import API from "@/utils/api";
 import dayjs from "dayjs";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import Day from "./calendar/Day";
-import API from "@/utils/api";
 
 const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const Calendar = React.memo(() => {
   const [currentDate, setCurrentDate] = useState(dayjs());
-  const { setSelectedDate } = useEvent();
-  const [eventsPerDay, setEventsPerDay] = useState([]);
 
   const startOfMonth = currentDate.startOf("month").day();
   const endOfMonth = currentDate.endOf("month");
@@ -21,18 +23,27 @@ const Calendar = React.memo(() => {
   const prevMonth = () => setCurrentDate(currentDate.subtract(1, "month"));
   const nextMonth = () => setCurrentDate(currentDate.add(1, "month"));
 
+  const eventsPerDay = useAppSelector(
+    (state) => state.events.monthDayEventsNumber
+  );
+  const dispatch = useAppDispatch();
+
   const today = dayjs();
 
   useEffect(() => {
     API.get(
       `/events/events-per-day?year=${currentDate.year()}&month=${currentDate.month()}`
     )
-      .then((res: any) => setEventsPerDay(res.data.eventsPerDay))
+      .then((res: any) =>
+        dispatch(setMonthDayEventsNumber(res.data.eventsPerDay))
+      )
       .catch((err) => {
         console.error(err);
       });
 
-    return () => setEventsPerDay([]);
+    return () => {
+      dispatch(setMonthDayEventsNumber([]));
+    };
   }, [currentDate]);
 
   const isToday = (day: number) =>
@@ -78,7 +89,9 @@ const Calendar = React.memo(() => {
             day={i + 1}
             today={isToday(i + 1)}
             eventsNumber={eventsPerDay[i] || 0}
-            onClick={() => setSelectedDate(currentDate.date(i + 1))}
+            onClick={() =>
+              dispatch(setSelectedDate(currentDate.date(i + 1).toISOString()))
+            }
           />
         ))}
       </div>
