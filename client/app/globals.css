@@ -61,3 +61,12 @@ body {
 dialog[open]::backdrop {
   background: #00000044;
 }
+
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #4b5563;
+  border-radius: 4px;
+}

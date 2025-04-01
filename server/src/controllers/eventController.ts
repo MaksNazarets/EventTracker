@@ -169,15 +169,15 @@ export const createEvent = async (req: Request, res: Response) => {
 };
 
 export const updateEvent = async (req: Request, res: Response) => {
-  const { id, title, description, importance, datetime } = req.body;
+  const { id, title, description, importance, dateTime } = req.body;
 
-  if (!id || !title || !description || !importance || !datetime) {
+  if (!id || !title || !description || !importance || !dateTime) {
     res.status(400).json("All fields required");
     console.error("All fields required");
     return;
   }
 
-  if (!dayjs(datetime).isValid()) {
+  if (!dayjs(dateTime).isValid()) {
     res.status(400).json({ error: "Invalid or missing date" });
     return;
   }
@@ -215,7 +215,7 @@ export const updateEvent = async (req: Request, res: Response) => {
     await eventRepo.update(id, {
       title: title.trim(),
       description: description.trim(),
-      dateTime: datetime,
+      dateTime: dateTime,
       importance: { id: importance } as Importance,
     });
 

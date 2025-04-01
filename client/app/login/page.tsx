@@ -44,6 +44,7 @@ export default function LoginPage() {
           onChange={(e) => setEmail(e.target.value)}
           className="custom-input"
           required
+          autoComplete="email"
         />
         <input
           type="password"
@@ -52,6 +53,7 @@ export default function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
           className="custom-input"
           required
+          autoComplete="current-password"
         />
         {error && (
           <span className="text-red-400 text-xl text-center">{error}</span>
