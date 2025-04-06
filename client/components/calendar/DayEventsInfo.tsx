@@ -31,6 +31,8 @@ function DayEventsInfo({ date, onClose }: Props) {
   useEffect(() => {
     if (!date) return;
 
+    document.addEventListener("keydown", handleEscKeyPress);
+
     setIsDataFetching(true);
     API.get(`/events/get?date=${date}`, {
       headers: {
@@ -46,11 +48,20 @@ function DayEventsInfo({ date, onClose }: Props) {
       .finally(() => {
         setIsDataFetching(false);
       });
+
+    return () => {
+      document.removeEventListener("keydown", handleEscKeyPress);
+    };
   }, [date]);
 
   const close = () => {
     onClose();
     setDayEvents([]);
+    setFilter("all");
+  };
+
+  const handleEscKeyPress = (event: KeyboardEvent) => {
+    if (event.key === "Escape") close();
   };
 
   const handleCreateEvent = useCallback((event: EventType) => {
@@ -144,7 +155,13 @@ function DayEventsInfo({ date, onClose }: Props) {
           onClose={() => setEventToView(null)}
           onUpdate={(event: EventType) =>
             setDayEvents((prev) =>
-              prev.map((e) => (e.id === event.id ? event : e))
+              prev
+                .map((e) => (e.id === event.id ? event : e))
+                .toSorted(
+                  (a, b) =>
+                    new Date(a.dateTime!).getTime() -
+                    new Date(b.dateTime!).getTime()
+                )
             )
           }
           onDelete={() =>
