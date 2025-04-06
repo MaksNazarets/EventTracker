@@ -1,15 +1,18 @@
 "use client";
 
 import LoadingSpinner from "@/components/LoadingSpinner";
-import { getMe } from "@/lib/slices/userSlice";
+import { setUser } from "@/lib/slices/userSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/store";
+import { User } from "@/types";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function AuthProvider({
   children,
+  defaultUser,
 }: Readonly<{
   children: React.ReactNode;
+  defaultUser: User | { error: string };
 }>) {
   const router = useRouter();
   const user = useAppSelector((state) => state.user);
@@ -17,12 +20,8 @@ export default function AuthProvider({
   const [isUserFetching, setIsUserFetching] = useState(true);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      await dispatch(getMe());
-      setIsUserFetching(false);
-    };
-
-    fetchUser();
+    dispatch(setUser(defaultUser as User));
+    setIsUserFetching(false);
   }, []);
 
   useEffect(() => {

@@ -1,3 +1,4 @@
+import { getMe } from "@/lib/authServer";
 import type { Metadata } from "next";
 import { Alegreya_Sans, Alegreya_Sans_SC } from "next/font/google";
 import "./globals.css";
@@ -19,17 +20,19 @@ export const metadata: Metadata = {
   title: "Events Tracker",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  let userReqResult = await getMe();
+
   return (
     <html>
       <body
         className={`flex justify-center min-w-screen min-h-screen ${alegreyaSans.variable} ${alegreyaSansSC.variable} bg-mblue-900 antialiased h-screen p-4`}
       >
-        <Providers>{children}</Providers>
+        <Providers user={userReqResult}>{children}</Providers>
       </body>
     </html>
   );

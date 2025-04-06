@@ -91,7 +91,7 @@ function EventViewer({ event, isOpen, onClose, onUpdate, onDelete }: Props) {
   return (
     <dialog
       ref={dialogRef}
-      className="fixed top-1/2 bg-gray-900 rounded-xl border-2 border-gray-700 text-foreground shadow-xl transition duration-200 overflow-hidden bubble-fade-in mx-auto -translate-y-1/2"
+      className="fixed top-1/2 bg-gray-900 rounded-xl border-2 border-gray-700 text-foreground text-left shadow-xl transition duration-200 overflow-hidden bubble-fade-in mx-auto -translate-y-1/2"
       onCancel={(e) => {
         e.preventDefault();
         onClose();

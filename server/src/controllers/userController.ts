@@ -74,14 +74,14 @@ export const loginUser = async (req: Request, res: Response) => {
   const token = jwt.sign(
     { userId: user.id },
     process.env.JWT_SECRET as string,
-    { expiresIn: "1h" }
+    { expiresIn: "365d" }
   );
 
   res.cookie("token", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    maxAge: 60 * 60 * 1000, // 1 hour
+    maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year in milliseconds
   });
 
   console.log(`user ${user.id} logged in`);

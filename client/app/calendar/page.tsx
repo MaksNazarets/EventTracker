@@ -7,7 +7,7 @@ import { setSelectedDate } from "@/lib/slices/eventsSlice";
 import { logoutUser } from "@/lib/slices/userSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/store";
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function CalendarPage() {
   const user = useAppSelector((state) => state.user);
