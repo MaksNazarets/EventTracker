@@ -20,9 +20,9 @@ function DayEvent({ event, ...props }: Props) {
             : ""
         }`}
       >
-        <div className="flex-1 flex flex-col">
-          <h3 className="overflow-hidden text-ellipsis">{event.title}</h3>
-          <p className="text-xl">{event.description}</p>
+        <div className="w-77 flex-1 flex flex-col">
+          <h3 className="max-w-full truncate">{event.title}</h3>
+          <p className="text-xl max-h-16 truncate">{event.description}</p>
         </div>
         <div className="flex items-center justify-center w-14">
           {dateObject.format("HH:mm")}

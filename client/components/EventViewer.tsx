@@ -115,7 +115,6 @@ function EventViewer({ event, isOpen, onClose, onUpdate, onDelete }: Props) {
           <div className="custom-input-borderless font-bold">{title}</div>
         )}
 
-        {editMode ? (
           <textarea
             placeholder="Description"
             value={description}
@@ -124,9 +123,7 @@ function EventViewer({ event, isOpen, onClose, onUpdate, onDelete }: Props) {
             required
             disabled={!editMode}
           ></textarea>
-        ) : (
-          <div className="custom-input-borderless flex-1">{description}</div>
-        )}
+       
 
         <div className="flex gap-2">
           <input
