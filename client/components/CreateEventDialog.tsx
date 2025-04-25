@@ -6,6 +6,7 @@ import { EventType, Importance } from "@/types";
 import API from "@/utils/api";
 import { parseTime } from "@/utils/time";
 import dayjs from "dayjs";
+import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 interface Props {
@@ -107,8 +108,14 @@ function CreateEventDialog({ isOpen, onSuccess, onClose }: Props) {
       }}
       onClick={(e) => handleBackdropClick(e)}
     >
-      <div className="flex flex-col gap-5 max-w-full max-h-full w-[700px] h-[500px] px-3 sm:px-8 py-6">
-        <span className="text-center text-3xl">New event</span>
+      <div className="flex flex-col gap-3 max-w-full max-h-full w-[700px] h-[500px] px-3 sm:px-8 py-6">
+        <div className="relative text-center text-3xl">
+          <span>New event</span>
+          <X
+            className="absolute top-1/2 -translate-y-1/2 right-0 size-8 p-1 rounded-full hover:bg-black/50"
+            onClick={() => close()}
+          />
+        </div>
         <input
           type="text"
           placeholder="Title"
@@ -145,7 +152,7 @@ function CreateEventDialog({ isOpen, onSuccess, onClose }: Props) {
         </div>
         <button
           type="submit"
-          className="mt-3 text-[1.4rem] bg-gray-600 p-2 rounded-md hover:bg-gray-700 active:bg-gray-700 transition disabled:brightness-75"
+          className="mt-2 text-[1.4rem] bg-gray-600 p-2 rounded-md hover:bg-gray-700 active:bg-gray-700 transition disabled:brightness-75"
           onClick={(e) => handleSubmit(e)}
           disabled={
             title.trim().length === 0 ||

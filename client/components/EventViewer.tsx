@@ -6,6 +6,7 @@ import { EventType, Importance } from "@/types";
 import API from "@/utils/api";
 import { parseTime } from "@/utils/time";
 import dayjs from "dayjs";
+import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 interface Props {
@@ -98,10 +99,14 @@ function EventViewer({ event, isOpen, onClose, onUpdate, onDelete }: Props) {
       }}
       onClick={(e) => handleBackdropClick(e)}
     >
-      <div className="flex flex-col gap-5 max-w-full max-h-full w-[700px] h-[500px] px-3 sm:px-8 py-6">
-        <span className="text-center text-3xl">
-          {editMode ? "Update event" : "Event"}
-        </span>
+      <div className="flex flex-col gap-3 max-w-full max-h-full w-[700px] h-[500px] px-3 sm:px-8 py-6">
+        <div className="relative text-center text-3xl">
+          <span>{editMode ? "Update event" : "Event"}</span>
+          <X
+            className="absolute top-1/2 -translate-y-1/2 right-0 size-8 p-1 rounded-full hover:bg-black/50"
+            onClick={() => onClose()}
+          />
+        </div>
         {editMode ? (
           <input
             type="text"
@@ -115,15 +120,14 @@ function EventViewer({ event, isOpen, onClose, onUpdate, onDelete }: Props) {
           <div className="custom-input-borderless font-bold">{title}</div>
         )}
 
-          <textarea
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="custom-input flex-1"
-            required
-            disabled={!editMode}
-          ></textarea>
-       
+        <textarea
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="custom-input flex-1"
+          required
+          disabled={!editMode}
+        ></textarea>
 
         <div className="flex gap-2">
           <input
@@ -136,7 +140,7 @@ function EventViewer({ event, isOpen, onClose, onUpdate, onDelete }: Props) {
           {editMode ? (
             <select
               value={importance}
-              className="bg-gray-800 p-2 px-4 rounded-md text-xl"
+              className="bg-gray-800 py-1 px-4 rounded-md text-xl"
               onChange={(e) =>
                 setImportance(parseInt(e.target.value, 10) as Importance)
               }
@@ -153,10 +157,10 @@ function EventViewer({ event, isOpen, onClose, onUpdate, onDelete }: Props) {
         </div>
 
         {editMode ? (
-          <div className="w-full self-end flex gap-1">
+          <div className="w-full mt-2 self-end flex gap-1">
             <button
               type="submit"
-              className="flex-1 mt-3 text-[1.4rem] bg-gray-600 p-2 rounded-md hover:bg-gray-700 active:bg-gray-700 transition disabled:brightness-75"
+              className="flex-1 text-[1.4rem] bg-gray-600 p-2 rounded-md hover:bg-gray-700 active:bg-gray-700 transition disabled:brightness-75"
               onClick={(e) => handleUpdate(e)}
               disabled={
                 title.trim().length === 0 || description.trim().length === 0
@@ -166,24 +170,24 @@ function EventViewer({ event, isOpen, onClose, onUpdate, onDelete }: Props) {
             </button>
             <button
               type="submit"
-              className="mt-3 text-[1.4rem]  border border-gray-500  p-2 rounded-md hover:border-gray-300 active:bg-gray-700 transition disabled:brightness-75"
+              className="text-[1.4rem]  border border-gray-500  p-2 rounded-md hover:border-gray-300 active:bg-gray-700 transition disabled:brightness-75"
               onClick={(e) => setEditMode(false)}
             >
               Cancel
             </button>
           </div>
         ) : (
-          <div className="w-1/2 self-end flex gap-1 use-select-none">
+          <div className="w-1/2 mt-2 self-end flex gap-1 use-select-none">
             <button
               type="submit"
-              className="flex-1 mt-3 text-[1.4rem] border border-gray-500 p-2 rounded-md hover:bg-gray-700 active:bg-gray-800 transition disabled:brightness-75"
+              className="flex-1 text-[1.4rem] border border-gray-500 p-2 rounded-md hover:bg-gray-700 active:bg-gray-800 transition disabled:brightness-75"
               onClick={(e) => setEditMode(true)}
             >
               Update
             </button>
             <button
               type="submit"
-              className="flex-1 mt-3 text-[1.4rem] bg-red-900/50 p-2 rounded-md border border-red-900/75 hover:bg-red-800/50 hover:border-red-500 active:bg-red-900/75 transition disabled:brightness-75"
+              className="flex-1 text-[1.4rem] bg-red-900/50 p-2 rounded-md border border-red-900/75 hover:bg-red-800/50 hover:border-red-500 active:bg-red-900/75 transition disabled:brightness-75"
               onClick={() => handleDelete()}
             >
               Delete
